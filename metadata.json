@@ -1,0 +1,9 @@
+{
+  "name": "UnityAds Pro Studio - Universal Ads Manager",
+  "description": "The ultimate AI-driven command center for global monetization and ad campaign management across Unity, Google, Meta, and Propeller networks.",
+  "requestFramePermissions": [],
+  "short_name": "AdsPro",
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a",
+  "display": "standalone"
+}
