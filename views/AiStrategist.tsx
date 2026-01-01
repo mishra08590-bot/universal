@@ -17,9 +17,13 @@ const AiStrategist: React.FC = () => {
     try {
       const result = await generateHybridStrategy(gameName, genre, platform);
       setStrategy(result);
-    } catch (err) {
-      console.error(err);
-      alert('AI Strategist could not connect. Check API key.');
+    } catch (err: any) {
+      if (err.message === "API_KEY_MISSING") {
+        alert("⚠️ AI Key Missing! Please go to Settings and add your Gemini API Key first.");
+      } else {
+        console.error(err);
+        alert('AI Strategist could not connect. Check your internet or API key.');
+      }
     } finally {
       setLoading(false);
     }
@@ -92,7 +96,6 @@ const AiStrategist: React.FC = () => {
       {strategy && (
         <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Overview Card */}
             <Card className="lg:col-span-4 bg-indigo-600/10 border-indigo-500/20">
               <div className="flex flex-col md:flex-row gap-6 items-center">
                 <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center text-3xl shadow-xl">🎯</div>
@@ -103,7 +106,6 @@ const AiStrategist: React.FC = () => {
               </div>
             </Card>
 
-            {/* Provider Breakdown */}
             {strategy.channelBreakdown.map((channel, i) => (
               <div key={i} className="space-y-4">
                 <div className={`flex items-center justify-between px-2 py-1 border-b ${getProviderColor(channel.provider)}`}>
@@ -123,25 +125,6 @@ const AiStrategist: React.FC = () => {
               </div>
             ))}
           </div>
-
-          {/* Timeline Phase */}
-          <Card title="Global Deployment Roadmap">
-            <div className="relative">
-              <div className="absolute left-[15px] top-4 bottom-4 w-0.5 bg-slate-800"></div>
-              <div className="space-y-8 relative">
-                {strategy.globalReachPlan.map((step, i) => (
-                  <div key={i} className="flex gap-6 items-start pl-8 relative">
-                    <div className="absolute left-[-23px] top-1 w-4 h-4 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)] border-4 border-slate-900 z-10"></div>
-                    <div className="flex-1">
-                      <h4 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">{step.phase}</h4>
-                      <h5 className="text-sm font-bold text-white mb-1">{step.action}</h5>
-                      <p className="text-xs text-slate-500">Target: {step.target}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Card>
         </div>
       )}
     </div>

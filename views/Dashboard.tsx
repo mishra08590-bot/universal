@@ -41,78 +41,103 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        {[
-          { label: 'Global eCPM', value: '$18.42', trend: '+12%', color: 'text-blue-400' },
-          { label: 'Total Revenue', value: '$42.9K', trend: '+28%', color: 'text-emerald-400' },
-          { label: 'Total Impressions', value: '1.2M', trend: '+45%', color: 'text-amber-400' },
-          { label: 'Network Health', value: 'Optimal', trend: '99.9%', color: 'text-indigo-400' },
-        ].map((stat, i) => (
-          <Card key={i} className="p-4 md:p-6 hover:border-slate-600 transition-colors cursor-pointer group">
-            <p className="text-[10px] md:text-sm text-slate-500 font-bold uppercase tracking-wider mb-1 group-hover:text-slate-300">{stat.label}</p>
-            <div className="flex items-baseline justify-between">
-              <h4 className="text-xl md:text-3xl font-black">{stat.value}</h4>
-              <span className={`text-[10px] md:text-xs font-bold px-1.5 py-0.5 rounded bg-slate-800 ${stat.color}`}>{stat.trend}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+           <div className="grid grid-cols-2 gap-3 md:gap-4">
+            {[
+              { label: 'Global eCPM', value: '$18.42', trend: '+12%', color: 'text-blue-400' },
+              { label: 'Total Revenue', value: '$42.9K', trend: '+28%', color: 'text-emerald-400' },
+              { label: 'Total Impressions', value: '1.2M', trend: '+45%', color: 'text-amber-400' },
+              { label: 'Network Health', value: 'Optimal', trend: '99.9%', color: 'text-indigo-400' },
+            ].map((stat, i) => (
+              <Card key={i} className="p-4 md:p-6 hover:border-slate-600 transition-colors cursor-pointer group">
+                <p className="text-[10px] md:text-sm text-slate-500 font-bold uppercase tracking-wider mb-1 group-hover:text-slate-300">{stat.label}</p>
+                <div className="flex items-baseline justify-between">
+                  <h4 className="text-xl md:text-3xl font-black">{stat.value}</h4>
+                  <span className={`text-[10px] md:text-xs font-bold px-1.5 py-0.5 rounded bg-slate-800 ${stat.color}`}>{stat.trend}</span>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          <Card title="Revenue Distribution Across Networks">
+            <div className="h-64 md:h-80 w-full mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={mockData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="gGoogle" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#4285F4" stopOpacity={0.4}/><stop offset="95%" stopColor="#4285F4" stopOpacity={0}/></linearGradient>
+                    <linearGradient id="gUnity" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/><stop offset="95%" stopColor="#6366f1" stopOpacity={0}/></linearGradient>
+                    <linearGradient id="gMeta" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#d946ef" stopOpacity={0.4}/><stop offset="95%" stopColor="#d946ef" stopOpacity={0}/></linearGradient>
+                    <linearGradient id="gProp" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4}/><stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/></linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                  <XAxis dataKey="name" stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
+                  <YAxis stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b' }} />
+                  <Area type="monotone" dataKey="google" stroke="#4285F4" fill="url(#gGoogle)" strokeWidth={3} />
+                  <Area type="monotone" dataKey="unity" stroke="#6366f1" fill="url(#gUnity)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="meta" stroke="#d946ef" fill="url(#gMeta)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="propeller" stroke="#06b6d4" fill="url(#gProp)" strokeWidth={2} />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </Card>
-        ))}
-      </div>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card title="Revenue Distribution Across Networks" className="lg:col-span-2">
-          <div className="h-64 md:h-80 w-full mt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={mockData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="gGoogle" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#4285F4" stopOpacity={0.4}/><stop offset="95%" stopColor="#4285F4" stopOpacity={0}/></linearGradient>
-                  <linearGradient id="gUnity" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/><stop offset="95%" stopColor="#6366f1" stopOpacity={0}/></linearGradient>
-                  <linearGradient id="gMeta" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#d946ef" stopOpacity={0.4}/><stop offset="95%" stopColor="#d946ef" stopOpacity={0}/></linearGradient>
-                  <linearGradient id="gProp" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4}/><stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/></linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                <XAxis dataKey="name" stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
-                <YAxis stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b' }} />
-                <Area type="monotone" dataKey="google" stroke="#4285F4" fill="url(#gGoogle)" strokeWidth={3} />
-                <Area type="monotone" dataKey="unity" stroke="#6366f1" fill="url(#gUnity)" strokeWidth={2} />
-                <Area type="monotone" dataKey="meta" stroke="#d946ef" fill="url(#gMeta)" strokeWidth={2} />
-                <Area type="monotone" dataKey="propeller" stroke="#06b6d4" fill="url(#gProp)" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+        <div className="space-y-6">
+          <Card title="🚀 Launch Readiness" className="border-indigo-500/30 bg-indigo-500/5">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-[10px] text-white">✓</div>
+                <span className="text-xs font-bold text-slate-300">UI/UX Design Complete</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-[10px] text-white">✓</div>
+                <span className="text-xs font-bold text-slate-300">AI Strategist Ready</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full border border-slate-700 bg-slate-900 flex items-center justify-center text-[10px]"></div>
+                <span className="text-xs font-bold text-slate-500">Add Production API Keys</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full border border-slate-700 bg-slate-900 flex items-center justify-center text-[10px]"></div>
+                <span className="text-xs font-bold text-slate-500">Verify Bank Details</span>
+              </div>
+              <div className="mt-4 p-4 bg-slate-950 rounded-xl border border-slate-800">
+                 <p className="text-[10px] font-black text-indigo-400 uppercase mb-2">Completion Status</p>
+                 <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs font-bold">90% READY</span>
+                 </div>
+                 <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div className="bg-gradient-to-r from-indigo-500 to-emerald-500 h-full w-[90%]"></div>
+                 </div>
+              </div>
+            </div>
+          </Card>
 
-        <Card title="Traffic by Platform">
-          <div className="h-64 md:h-80 w-full mt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={[
-                { platform: 'Android', value: 85 },
-                { platform: 'iOS', value: 65 },
-                { platform: 'Web', value: 95 },
-                { platform: 'Social', value: 120 },
-              ]}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={true} vertical={false} />
-                <XAxis dataKey="platform" stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
-                <YAxis hide />
-                <Tooltip cursor={{ fill: '#1e293b' }} />
-                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                  { [0, 1, 2, 3].map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={['#6366f1', '#d946ef', '#06b6d4', '#fbbf24'][index]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-4 p-4 bg-slate-950 rounded-xl border border-slate-800">
-             <div className="flex justify-between items-center mb-1">
-                <span className="text-[10px] text-slate-500 font-bold uppercase">Reach Index</span>
-                <span className="text-xs font-bold text-emerald-400">9.4/10</span>
-             </div>
-             <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-gradient-to-r from-indigo-500 to-emerald-500 h-full w-[94%]"></div>
-             </div>
-          </div>
-        </Card>
+          <Card title="Traffic by Platform">
+            <div className="h-64 w-full mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={[
+                  { platform: 'Android', value: 85 },
+                  { platform: 'iOS', value: 65 },
+                  { platform: 'Web', value: 95 },
+                  { platform: 'Social', value: 120 },
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={true} vertical={false} />
+                  <XAxis dataKey="platform" stroke="#475569" fontSize={10} axisLine={false} tickLine={false} />
+                  <YAxis hide />
+                  <Tooltip cursor={{ fill: '#1e293b' }} />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                    { [0, 1, 2, 3].map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={['#6366f1', '#d946ef', '#06b6d4', '#fbbf24'][index]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );

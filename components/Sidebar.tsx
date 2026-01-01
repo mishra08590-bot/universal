@@ -12,6 +12,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
     { id: 'creator', label: 'Integration', icon: '🔌' },
     { id: 'campaigns', label: 'Campaigns', icon: '📢' },
     { id: 'strategy', label: 'AI Strategist', icon: '🤖' },
+    { id: 'support', label: 'Expert Help', icon: '💬' },
     { id: 'analytics', label: 'Analytics', icon: '📈' },
     { id: 'settings', label: 'Settings', icon: '⚙️' },
   ];
@@ -19,7 +20,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
   return (
     <div className="hidden md:flex w-64 bg-slate-900 border-r border-slate-800 h-full flex-col p-4 shrink-0">
       <div className="flex items-center gap-3 mb-10 px-2">
-        <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/40">U</div>
+        <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center font-bold text-white shadow-lg">U</div>
         <h1 className="text-xl font-bold tracking-tight">UnityAds Pro</h1>
       </div>
       
