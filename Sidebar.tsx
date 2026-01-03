@@ -13,7 +13,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
     { id: 'demo', label: 'Testing Lab', icon: '🕹️' },
     { id: 'campaigns', label: 'Deploy Ads', icon: '📢' },
     { id: 'strategy', label: 'Global Planner', icon: '🤖' },
-    { id: 'finance', label: 'Payouts/Finance', icon: '💰' },
     { id: 'support', label: 'Expert Chat', icon: '💬' },
     { id: 'analytics', label: 'Intelligence', icon: '📈' },
     { id: 'settings', label: 'Config', icon: '⚙️' },
@@ -29,7 +28,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
         </div>
       </div>
       
-      <nav className="flex-1 space-y-1.5 overflow-y-auto custom-scrollbar pr-2">
+      <nav className="flex-1 space-y-1.5">
         {navItems.map((item) => (
           <button
             key={item.id}
@@ -46,24 +45,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
         ))}
       </nav>
 
-      <div className="mt-auto space-y-4">
-        <div className="p-5 bg-indigo-500/5 rounded-[2rem] border border-indigo-500/20 backdrop-blur-md">
-          <div className="flex items-center justify-between mb-4">
-             <p className="text-[9px] text-indigo-400 uppercase font-black tracking-widest">Local Vault</p>
-             <div className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-             </div>
-          </div>
-          <div className="space-y-1">
-            <p className="text-[11px] text-slate-200 font-black uppercase tracking-tighter">Status: Active</p>
-            <p className="text-[8px] text-slate-500 font-medium italic">Data stored in Browser Storage</p>
-          </div>
-        </div>
-        
-        <div className="text-center pb-2">
-          <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.4em] mb-1">Launched by</p>
-          <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">SENSE GROUP</p>
+      <div className="mt-auto p-4 bg-slate-800/40 rounded-3xl border border-slate-700/50 backdrop-blur-md">
+        <p className="text-[10px] text-slate-500 mb-3 uppercase font-black tracking-widest">Global Network</p>
+        <div className="flex items-center gap-3">
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+          <span className="text-xs text-slate-200 font-black uppercase tracking-tighter">Endpoints Active</span>
         </div>
       </div>
     </div>

@@ -1,33 +1,26 @@
 
-# UnityAds Pro Studio - Hosting Guide
+# 🚀 AdsPro Studio: Hosting Guide (Hinglish)
 
-This project is a high-performance React application designed for global ad monetization management.
+Aapka app ab host hone ke liye taiyar hai. Niche diye gaye steps follow karein:
 
-## 🚀 Recommended Hosting Platforms
-
-### 1. Vercel (Recommended)
-1. Push your code to a GitHub repository.
-2. Go to [vercel.com](https://vercel.com) and import your repository.
-3. **Important:** In the "Environment Variables" section, add:
+## 🌐 Option 1: Vercel par Host karein (Sabse Easy)
+Vercel par host karne ke liye aapko build ki zaroorat nahi padegi:
+1. Is project ko apne **GitHub** par upload karein.
+2. [Vercel](https://vercel.com/) par login karein aur "Add New Project" select karein.
+3. Apna GitHub repo connect karein.
+4. **Environment Variables** section mein:
    - Key: `API_KEY`
-   - Value: `YOUR_GEMINI_API_KEY_HERE`
-4. Click **Deploy**.
+   - Value: (Apni Google Gemini API Key dalein - aistudio.google.com se lekar)
+5. **Deploy** button daba dein. Ho gaya!
 
-### 2. Netlify
-1. Log in to [netlify.com](https://netlify.com).
-2. Connect your GitHub or drag-and-drop the project folder.
-3. Go to **Site Settings > Build & Deploy > Environment**.
-4. Add the `API_KEY` variable.
+## 📂 Option 2: Shared Hosting (cPanel)
+Agar aapke paas domain aur hosting hai:
+1. Sari files (index.html, index.tsx, App.tsx, etc.) ko ek folder mein rakhein.
+2. Unhe apne host ke `public_html` folder mein upload kar dein.
+3. Note: Is method mein `process.env.API_KEY` seedha browser mein access nahi hoga, isliye Settings mein manually key dalna pad sakta hai.
 
-## 🔑 Environment Variables
-The application relies on the `process.env.API_KEY` for the AI Strategist (Gemini API). 
-- To get a key, visit: [ai.google.dev](https://ai.google.dev/)
+## 🛠️ Important Notes
+- **API Key:** Ye app AI features ke liye Gemini use karta hai. Hosting ke baad `Settings` page par ja kar apni key check karein.
+- **PWA:** Jab aap ise HTTPS (Secure) link par host karenge, toh phone browser mein "Add to Home Screen" ka option aayega.
 
-## ⚠️ Security Note
-This is a frontend-only implementation. For a production-grade application, it is recommended to proxy your AI requests through a backend server to keep your API keys hidden from the browser's Network tab.
-
-## 🛠️ Features
-- **Dashboard:** Real-time (simulated) revenue tracking.
-- **AI Strategist:** Powered by Gemini 3 Flash.
-- **Campaign Manager:** Set budgets and target global audiences.
-- **Universal Integration:** Connect Unity, Google, Meta, and more.
+Developed with AdsPro Protocol.

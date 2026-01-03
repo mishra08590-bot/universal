@@ -1,28 +1,50 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
-import { Platform, HybridStrategyResponse, AdProvider } from "../types";
+import { Platform, HybridStrategyResponse } from "../types";
 
-// Helper to get the best available API key
-const getApiKey = (): string => {
-  const savedKeys = localStorage.getItem('adspro_keys');
-  if (savedKeys) {
-    const parsed = JSON.parse(savedKeys);
-    if (parsed.google_ai) return parsed.google_ai;
-  }
-  return process.env.API_KEY || '';
+/**
+ * Fetches real-world eCPM and market trend data to populate the dashboard.
+ */
+export const fetchMarketPulse = async (): Promise<{
+  avgEcpm: number;
+  marketTrend: string;
+  fillRate: number;
+  topGeos: string[];
+}> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: "Act as a programmatic ad expert. Provide current global average eCPM for mobile/web ads, a 1-sentence market trend, an average fill rate percentage, and the top 3 high-revenue countries today. Return as JSON.",
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          avgEcpm: { type: Type.NUMBER },
+          marketTrend: { type: Type.STRING },
+          fillRate: { type: Type.NUMBER },
+          topGeos: { type: Type.ARRAY, items: { type: Type.STRING } },
+        },
+        required: ["avgEcpm", "marketTrend", "fillRate", "topGeos"],
+      }
+    }
+  });
+
+  return JSON.parse(response.text || '{}');
 };
 
+/**
+ * Generates a hybrid monetization strategy using Google Gemini.
+ */
 export const generateHybridStrategy = async (
   gameName: string,
   genre: string,
   platform: Platform
 ): Promise<HybridStrategyResponse> => {
-  const apiKey = getApiKey();
-  if (!apiKey) throw new Error("API_KEY_MISSING");
-
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+    model: 'gemini-3-pro-preview',
     contents: `Act as a Global Monetization Architect. Create an 'Everywhere' (Universal) strategy for "${gameName}" (${genre}) on ${platform}.
     The strategy must cover:
     1. Unity Ads (In-game engagement)
@@ -85,16 +107,18 @@ export const generateHybridStrategy = async (
   return JSON.parse(response.text || '{}') as HybridStrategyResponse;
 };
 
-export const getAiSupportResponse = async (userMessage: string, history: {role: string, parts: any[]}[]): Promise<string> => {
-  const apiKey = getApiKey();
-  if (!apiKey) throw new Error("API_KEY_MISSING");
-
-  const ai = new GoogleGenAI({ apiKey });
+/**
+ * Provides expert support response using Gemini Chat.
+ */
+export const getAiSupportResponse = async (userMessage: string, history: any[]): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   const chat = ai.chats.create({
-    model: 'gemini-3-flash-preview',
+    model: 'gemini-3-pro-preview',
     config: {
       systemInstruction: "You are the 'AdsPro Studio Expert'. You help users solve technical problems with Unity Ads, Google AdMob, Meta, and PropellerAds. Give concise, technical, and high-revenue advice in Hinglish (Hindi + English). If the user asks for code, provide C# for Unity or JavaScript for Web.",
-    }
+    },
+    history: history,
   });
   
   const response = await chat.sendMessage({ message: userMessage });

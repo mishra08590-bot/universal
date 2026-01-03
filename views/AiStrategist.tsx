@@ -18,12 +18,8 @@ const AiStrategist: React.FC = () => {
       const result = await generateHybridStrategy(gameName, genre, platform);
       setStrategy(result);
     } catch (err: any) {
-      if (err.message === "API_KEY_MISSING") {
-        alert("⚠️ AI Key Missing! Please go to Settings and add your Gemini API Key first.");
-      } else {
-        console.error(err);
-        alert('AI Strategist could not connect. Check your internet or API key.');
-      }
+      console.error(err);
+      alert('AI Strategist encountered a connection issue. Please try again later.');
     } finally {
       setLoading(false);
     }

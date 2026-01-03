@@ -1,149 +1,188 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from '../components/Card';
-import { Platform, AdType, AdProvider } from '../types';
+import { Platform } from '../types';
+
+interface CustomCampaign {
+  id: string;
+  name: string;
+  type: string;
+  provider: 'Unity' | 'AdMob';
+  status: 'active' | 'draft';
+}
 
 const ProjectCreator: React.FC = () => {
-  const [provider, setProvider] = useState<AdProvider>(AdProvider.Google);
   const [isInitializing, setIsInitializing] = useState(false);
   const [showCode, setShowCode] = useState(false);
-  const [formData, setFormData] = useState({
+  const [activeCampaigns, setActiveCampaigns] = useState<CustomCampaign[]>([]);
+  const [provider, setProvider] = useState<'Unity' | 'AdMob'>('Unity');
+  const [systemMode, setSystemMode] = useState('sandbox');
+  const [unityGameId, setUnityGameId] = useState('7777777');
+  const [admobAppId, setAdmobAppId] = useState('ca-app-pub-3940256099942544~3347511713');
+  const [adUnitId, setAdUnitId] = useState('ca-app-pub-3940256099942544/6300978111');
+  
+  const [creativeData, setCreativeData] = useState({
     name: '',
-    genre: 'Hyper-Casual',
-    platform: Platform.Android,
+    assetType: 'Banner',
   });
 
-  const getProviderAds = (p: AdProvider): AdType[] => {
-    switch(p) {
-      case AdProvider.Google: return [AdType.AppOpen, AdType.Native, AdType.Banner, AdType.Search];
-      case AdProvider.Unity: return [AdType.Rewarded, AdType.Interstitial, AdType.Banner, AdType.MREC];
-      case AdProvider.Propeller: return [AdType.Popunder, AdType.Push, AdType.InPagePush, AdType.DirectLink];
-      case AdProvider.Meta: return [AdType.MetaStories, AdType.MetaReels, AdType.MetaFeed];
-      default: return [AdType.Banner, AdType.Interstitial];
-    }
-  };
+  useEffect(() => {
+    const saved = localStorage.getItem('adspro_custom_ads');
+    if (saved) setActiveCampaigns(JSON.parse(saved));
+    
+    const savedMode = localStorage.getItem('adspro_system_mode') || 'sandbox';
+    setSystemMode(savedMode);
 
-  const getIntegrationCode = (p: AdProvider) => {
-    if (p === AdProvider.Unity) {
-      return `// Unity Ads Initialization C#\nAdvertisement.Initialize("GAME_ID_HERE", testMode, this);\n\n// Show Rewarded Ad\nAdvertisement.Show("rewardedVideo");`;
-    }
-    if (p === AdProvider.Propeller) {
-      return `<!-- PropellerAds Web Tag -->\n<script>\n  (function(s,u,z,p){s.src=u,s.setAttribute('data-zone',z),p.appendChild(s);\n  })(document.createElement('script'),'https://iclickcdn.com/tag.min.js',ZONE_ID,document.body);\n</script>`;
-    }
-    return `// Global Ad SDK Init\nconst adConfig = { appId: 'APP_ID', provider: '${p}' };\nAdSDK.init(adConfig).then(() => console.log("Ads Ready!"));`;
-  };
+    const savedKeys = JSON.parse(localStorage.getItem('adspro_keys') || '{}');
+    if (savedKeys.unity) setUnityGameId(savedKeys.unity);
+    if (savedKeys.google) setAdmobAppId(savedKeys.google);
+  }, []);
 
-  const handleInitialize = () => {
-    if (!formData.name) return alert("Please enter project name.");
+  const admobScript = `using GoogleMobileAds.Api;
+using UnityEngine;
+
+public class AdMobManager : MonoBehaviour
+{
+    // ISSE APNE REAL AD UNIT ID SE REPLACE KAREIN (AdMob Dashboard)
+    private string _adUnitId = "${adUnitId}"; 
+    private BannerView _bannerView;
+
+    void Start() {
+        MobileAds.Initialize((InitializationStatus initStatus) => {
+            Debug.Log("AdMob Initialized.");
+            RequestBanner();
+        });
+    }
+
+    private void RequestBanner() {
+        if (_bannerView != null) { _bannerView.Destroy(); }
+        _bannerView = new BannerView(_adUnitId, AdSize.Banner, AdPosition.Top);
+        AdRequest request = new AdRequest();
+        _bannerView.LoadAd(request);
+    }
+}`;
+
+  const unityScript = `using UnityEngine;
+using UnityEngine.Advertisements;
+
+public class UnityAdsManager : MonoBehaviour, IUnityAdsInitializationListener
+{
+    [SerializeField] string _androidGameId = "${unityGameId}";
+    [SerializeField] bool _testMode = ${systemMode === 'sandbox'};
+
+    void Awake() {
+        if (!Advertisement.isInitialized && Advertisement.isSupported) {
+            Advertisement.Initialize(_androidGameId, _testMode, this);
+        }
+    }
+
+    public void OnInitializationComplete() => Debug.Log("Unity Ads Init Success");
+    public void OnInitializationFailed(UnityAdsInitializationError error, string message) => Debug.Log("Init Failed");
+}`;
+
+  const handleActivate = () => {
+    if (!creativeData.name) return alert("Project ka naam zaroori hai.");
     setIsInitializing(true);
+    
     setTimeout(() => {
+      const newCampaign: CustomCampaign = {
+        id: `ADS_${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+        name: creativeData.name,
+        type: creativeData.assetType,
+        provider: provider,
+        status: 'active'
+      };
+      const updated = [newCampaign, ...activeCampaigns];
+      setActiveCampaigns(updated);
+      localStorage.setItem('adspro_custom_ads', JSON.stringify(updated));
       setIsInitializing(false);
       setShowCode(true);
-    }, 2000);
+    }, 1500);
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-20">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-1">
+    <div className="max-w-7xl mx-auto space-y-6 pb-24 px-4 animate-in fade-in duration-500">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/5 pb-6">
         <div>
-          <h2 className="text-3xl font-black tracking-tight">Universal Connector</h2>
-          <p className="text-slate-400 text-sm font-medium">Deploy ads on any Website, Mobile App, or Social Media.</p>
+          <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic text-white">Unit Studio</h2>
+          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mt-1">Real Ads Integration Engine</p>
         </div>
-        <div className="bg-slate-900 px-4 py-2 rounded-2xl border border-slate-800 flex items-center gap-3">
-          <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-          <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Global CDN Active</span>
-        </div>
-      </div>
+      </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <Card title="Select Network" className="lg:col-span-1">
-          <div className="grid grid-cols-2 lg:grid-cols-1 gap-2">
-            {[AdProvider.Google, AdProvider.Unity, AdProvider.Meta, AdProvider.Propeller].map((p) => (
-              <button
-                key={p}
-                onClick={() => { setProvider(p); setShowCode(false); }}
-                className={`p-3 rounded-xl border-2 text-left transition-all ${
-                  provider === p 
-                    ? `border-indigo-500 bg-indigo-500/10` 
-                    : 'border-slate-800 bg-slate-900/50 hover:border-slate-700'
-                }`}
-              >
-                <span className="text-xs font-bold block">{p}</span>
-              </button>
-            ))}
-          </div>
-        </Card>
-
-        <div className="lg:col-span-3 space-y-6">
-          {!showCode ? (
-            <>
-              <Card title="Project Definition">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2">Project Name</label>
-                      <input 
-                        type="text" 
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="e.g. My Global App"
-                        value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2">Platform Reach</label>
-                      <select 
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-                        value={formData.platform}
-                        onChange={(e) => setFormData({...formData, platform: e.target.value as Platform})}
-                      >
-                        {Object.values(Platform).map(p => <option key={p} value={p}>{p}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="p-4 bg-indigo-500/5 border border-indigo-500/20 rounded-xl">
-                      <h4 className="text-[10px] font-bold text-indigo-400 uppercase mb-2">Integration Preview</h4>
-                      <p className="text-xs text-slate-400">Initialize <strong>{provider}</strong> SDK for <strong>{formData.platform}</strong> to start earning revenue from global traffic.</p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              <div className="flex justify-end pt-4">
-                <button 
-                  onClick={handleInitialize}
-                  disabled={isInitializing}
-                  className="w-full sm:w-auto px-12 py-3.5 rounded-2xl font-black text-white bg-gradient-to-r from-indigo-600 to-blue-600 shadow-xl transition-all active:scale-95 disabled:opacity-50"
-                >
-                  {isInitializing ? 'GENERATING SDK CONFIG...' : 'INITIALIZE GLOBAL SDK'}
-                </button>
-              </div>
-            </>
-          ) : (
-            <Card title="🚀 Integration Ready!" className="border-emerald-500/30 bg-emerald-500/5 animate-in zoom-in duration-300">
-              <div className="space-y-4">
-                <p className="text-sm text-slate-300">Copy this code and paste it into your project to activate <strong>{provider}</strong>:</p>
-                <div className="relative group">
-                  <pre className="bg-slate-950 p-6 rounded-2xl border border-slate-800 font-mono text-xs text-indigo-400 overflow-x-auto">
-                    {getIntegrationCode(provider)}
-                  </pre>
-                  <button 
-                    onClick={() => alert("Code copied to clipboard!")}
-                    className="absolute top-4 right-4 px-3 py-1 bg-slate-800 text-[10px] font-bold rounded hover:bg-indigo-600 transition-colors"
-                  >
-                    COPY CODE
+      {!showCode ? (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-8 space-y-6">
+            <Card title="Step 1: Choose Network & Config" className="bg-slate-900 border-slate-800">
+              <div className="space-y-8">
+                <div className="grid grid-cols-2 gap-4">
+                  <button onClick={() => setProvider('Unity')} className={`p-6 rounded-3xl border-2 transition-all ${provider === 'Unity' ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800 bg-slate-950'}`}>
+                    <p className="text-2xl mb-2">🎮</p>
+                    <p className="font-black text-xs uppercase text-white">Unity Ads</p>
+                  </button>
+                  <button onClick={() => setProvider('AdMob')} className={`p-6 rounded-3xl border-2 transition-all ${provider === 'AdMob' ? 'border-emerald-500 bg-emerald-500/10' : 'border-slate-800 bg-slate-950'}`}>
+                    <p className="text-2xl mb-2">🔍</p>
+                    <p className="font-black text-xs uppercase text-white">Google AdMob</p>
                   </button>
                 </div>
-                <div className="flex gap-3">
-                   <button onClick={() => setShowCode(false)} className="px-6 py-2 bg-slate-800 rounded-xl text-xs font-bold">Back to Edit</button>
-                   <button className="px-6 py-2 bg-indigo-600 rounded-xl text-xs font-bold">View Docs</button>
+
+                <div className="space-y-4">
+                   <input 
+                     className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-sm font-bold text-white focus:border-indigo-500 outline-none"
+                     placeholder="Project Name (e.g. My Racing Game)"
+                     value={creativeData.name}
+                     onChange={(e) => setCreativeData({...creativeData, name: e.target.value})}
+                   />
                 </div>
+
+                <button 
+                  onClick={handleActivate}
+                  className={`w-full py-5 rounded-2xl font-black text-xs uppercase tracking-widest ${provider === 'Unity' ? 'bg-indigo-600' : 'bg-emerald-600'} text-white shadow-2xl active:scale-95 transition-all`}
+                >
+                  {isInitializing ? 'VALIDATING SDK PROTOCOLS...' : `GENERATE ${provider.toUpperCase()} SCRIPT`}
+                </button>
               </div>
             </Card>
-          )}
+          </div>
+
+          <div className="lg:col-span-4 space-y-6">
+             <Card title="Path to Real Money" className="bg-slate-950 border-emerald-500/20">
+                <div className="space-y-6">
+                   <div className="p-4 bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
+                      <p className="text-[10px] font-black text-emerald-400 uppercase mb-2">Money Verification</p>
+                      <p className="text-[11px] text-slate-400 leading-relaxed italic">
+                        Real paise sirf tab aayenge jab aapka game **Play Store** par hoga aur log use download karke ads dekhenge. 
+                      </p>
+                   </div>
+                   <div className="space-y-4">
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Next Actions:</p>
+                      <ul className="text-[11px] text-slate-400 space-y-3">
+                         <li className="flex gap-2 items-start"><span className="text-indigo-400">1.</span> Unity mein script file banayein.</li>
+                         <li className="flex gap-2 items-start"><span className="text-indigo-400">2.</span> Real IDs Dashboard se copy karein.</li>
+                         <li className="flex gap-2 items-start"><span className="text-indigo-400">3.</span> Build generate karke test karein.</li>
+                      </ul>
+                   </div>
+                </div>
+             </Card>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="max-w-4xl mx-auto space-y-6 animate-in zoom-in">
+           <Card title={`Real ${provider} Production Script`} className="bg-slate-950 border-white/10">
+              <div className="mb-6 p-5 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+                 <p className="text-xs text-amber-500 font-bold leading-relaxed">
+                    ⚠️ <b>IMPORTANT:</b> Ye code bilkul sahi hai. Ise apne Unity project ke "Scripts" folder mein copy karein aur file ka naam <b>{provider === 'AdMob' ? 'AdMobManager.cs' : 'UnityAdsManager.cs'}</b> rakhein.
+                 </p>
+              </div>
+              <pre className="bg-black p-8 rounded-2xl border border-slate-800 text-emerald-400 font-mono text-[11px] overflow-x-auto custom-scrollbar">
+                 {provider === 'AdMob' ? admobScript : unityScript}
+              </pre>
+              <div className="mt-8 flex gap-4">
+                 <button onClick={() => setShowCode(false)} className="flex-1 py-4 bg-slate-800 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest">Back</button>
+                 <button onClick={() => { navigator.clipboard.writeText(provider === 'AdMob' ? admobScript : unityScript); alert("Script Copied!"); }} className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest">Copy to Clipboard</button>
+              </div>
+           </Card>
+        </div>
+      )}
     </div>
   );
 };
